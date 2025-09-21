@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppContextProvider, useAppContext, DataContextProvider } from './context/AppContext';
 import LoginModal from './components/LoginModal';
 import MainLayout from './components/MainLayout';
@@ -62,7 +62,7 @@ const MainApp: React.FC = () => {
           // This is the key change: Wrap the authenticated app in DataContextProvider.
           // This ensures useLiveQuery hooks only run when dbReady is true, preventing the crash.
           <DataContextProvider>
-            <HashRouter>
+            <BrowserRouter>
               <Routes>
                 <Route path="/" element={<MainLayout />}>
                   <Route index element={<Navigate to="/dashboard" replace />} />
@@ -74,7 +74,7 @@ const MainApp: React.FC = () => {
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
               </Routes>
-            </HashRouter>
+            </BrowserRouter>
           </DataContextProvider>
         ) : (
           <div className="h-screen w-screen bg-gray-100 dark:bg-gray-900"></div>
