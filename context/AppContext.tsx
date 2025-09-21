@@ -39,6 +39,14 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
     };
     initializeDatabase();
   }, []);
+
+  // Effect to check authentication on startup
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token === 'loggedIn') {
+      setIsAuthenticated(true);
+    }
+  }, []);
   
   const handleSync = useCallback(async () => {
     if (!isOnline) return;
@@ -84,10 +92,14 @@ export const AppContextProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [isOnline, isAuthenticated, dbReady, handleSync]);
 
-  const login = () => setIsAuthenticated(true);
-  
+  const login = () => {
+    localStorage.setItem('authToken', 'loggedIn');
+    setIsAuthenticated(true);
+  };
+
   // Simplified logout to prioritize stability. Background sync will handle pending items.
   const logout = () => {
+    localStorage.removeItem('authToken');
     setIsAuthenticated(false);
   };
 

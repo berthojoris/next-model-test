@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAppContext, useDataContext } from '../context/AppContext';
 import { MENU_ITEMS, LogoutIcon, WifiIcon, WifiOffIcon, MenuIcon } from '../constants';
 
@@ -8,6 +8,7 @@ const MainLayout: React.FC = () => {
   const { logout, isOnline, toggleOnlineStatus } = useAppContext();
   const { pendingSyncCount, submissionsToday } = useDataContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen bg-gray-900 text-gray-200">
@@ -46,7 +47,7 @@ const MainLayout: React.FC = () => {
         </nav>
         <div className="p-4 border-t border-white/10">
           <button
-            onClick={logout}
+            onClick={() => { navigate('/'); logout(); }}
             className="flex items-center w-full px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors duration-200"
           >
             <LogoutIcon />
