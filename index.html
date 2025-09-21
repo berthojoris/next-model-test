@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SurveySync Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.1",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "recharts": "https://aistudiocdn.com/recharts@^3.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-hook-form": "https://aistudiocdn.com/react-hook-form@^7.63.0",
+    "dexie-react-hooks": "https://aistudiocdn.com/dexie-react-hooks@^4.2.0",
+    "dexie": "https://aistudiocdn.com/dexie@^4.2.0"
+  }
+}
+</script>
+<style>
+    :root {
+      --glow-color: hsl(204, 92%, 53%); /* A nice blue */
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .btn-gradient {
+        background-image: linear-gradient(to right, #00c6ff 0%, #0072ff  51%, #00c6ff  100%);
+        transition: 0.5s;
+        background-size: 200% auto;
+        color: white;            
+    }
+    .btn-gradient:hover {
+        background-position: right center; /* change the direction of the change here */
+    }
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px var(--glow-color); }
+      50% { box-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
+      100% { box-shadow: 0 0 5px var(--glow-color); }
+    }
+    .animated-glow-border {
+        animation: glow 3s ease-in-out infinite;
+    }
+</style>
+</head>
+  <body class="bg-gray-900 text-white bg-gradient-to-br from-gray-900 via-blue-900/50 to-gray-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

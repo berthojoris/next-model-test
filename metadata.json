@@ -1,0 +1,5 @@
+{
+  "name": "SurveySync Pro",
+  "description": "A Progressive Web Application (PWA) for survey management with offline capabilities. It enables data collection in offline environments with automatic synchronization when online.",
+  "requestFramePermissions": []
+}
