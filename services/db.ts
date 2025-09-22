@@ -1,5 +1,5 @@
-// Fix: Use a named import for Dexie to resolve TypeScript errors when extending the class.
-import { Dexie, type Table } from 'dexie';
+// Fix: Use the default import for Dexie when extending the class. The named import `{ Dexie }` was likely a type-only import, which breaks inheritance.
+import Dexie, { type Table } from 'dexie';
 import type { Surveyor, SurveyRegularResponse, SurveyEventResponse } from '../types';
 
 export class SurveySyncDB extends Dexie {

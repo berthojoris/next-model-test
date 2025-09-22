@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { useAppContext } from '../context/AppContext';
@@ -7,43 +6,55 @@ import { SyncStatus, SurveyEventResponse } from '../types';
 
 const STEPS = 3;
 
-const FormInput = (props: any) => (
-    <input {...props} className="mt-1 block w-full rounded-md bg-white/5 border-white/20 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-2 px-3" />
-);
+const FormInput = ({ error, ...props }: any) => {
+    const baseClasses = 'mt-1 block w-full rounded-md bg-white/5 border shadow-sm py-2 px-3';
+    const errorClasses = 'border-red-500 focus:border-red-500 focus:ring-red-500';
+    const normalClasses = 'border-white/20 focus:border-cyan-500 focus:ring-cyan-500';
+    return <input {...props} className={`${baseClasses} ${error ? errorClasses : normalClasses}`} />;
+};
 
 const EventDetails = () => {
-    const { register } = useFormContext();
+    const { register, formState: { errors } } = useFormContext();
     return (
         <div className="space-y-4 animate-fade-in">
              <div>
                 <label className="block text-sm font-medium text-gray-300">Event Date</label>
-                <FormInput type="date" {...register('eventDate')} />
+                <FormInput type="date" error={errors.eventDate} {...register('eventDate', { required: 'Event date is required' })} />
+                {errors.eventDate && <p className="text-red-400 text-xs mt-1">{errors.eventDate.message as string}</p>}
              </div>
              <div>
                 <label className="block text-sm font-medium text-gray-300">Location</label>
-                <FormInput {...register('location')} />
+                <FormInput error={errors.location} {...register('location', { required: 'Location is required' })} />
+                {errors.location && <p className="text-red-400 text-xs mt-1">{errors.location.message as string}</p>}
              </div>
         </div>
     )
 };
 
 const StepQuestions = ({ start }: {start: number}) => {
-    const { register } = useFormContext();
+    const { register, formState: { errors } } = useFormContext();
+    const stepInData = Math.ceil(start / 5);
     return (
         <div className="space-y-4 animate-fade-in">
-            {[...Array(5)].map((_, i) => (
-                <div key={i}>
-                    <label className="block text-sm font-medium text-gray-300">Question {start + i}</label>
-                    <FormInput {...register(`step${Math.ceil(start/5)}.q${start+i}`)} />
-                </div>
-            ))}
+            {[...Array(5)].map((_, i) => {
+                const questionIndex = start + i;
+                const fieldName = `step${stepInData}.q${questionIndex}`;
+                const fieldError = errors[`step${stepInData}`]?.[`q${questionIndex}`];
+                return (
+                    <div key={i}>
+                        <label className="block text-sm font-medium text-gray-300">Question {questionIndex}</label>
+                        <FormInput error={!!fieldError} {...register(fieldName, { required: 'This field is required' })} />
+                        {fieldError && <p className="text-red-400 text-xs mt-1">{fieldError.message as string}</p>}
+                    </div>
+                )
+            })}
         </div>
     )
 }
 
 const SurveyEvent: React.FC = () => {
     const [step, setStep] = useState(1);
-    const methods = useForm();
+    const methods = useForm({ mode: 'onBlur' });
     const { isOnline } = useAppContext();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -56,6 +67,23 @@ const SurveyEvent: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [submitStatus]);
+
+    const handleNext = async () => {
+        let fieldsToValidate: string[] = [];
+        if (step === 1) {
+            fieldsToValidate = ['eventDate', 'location'];
+        } else if (step === 2) {
+            const stepInData = 1;
+            fieldsToValidate = [...Array(5)].map((_, i) => `step${stepInData}.q${i + 1}`);
+        }
+        
+        if (fieldsToValidate.length > 0) {
+            const isValid = await methods.trigger(fieldsToValidate as any);
+            if (isValid) {
+                setStep(s => s + 1);
+            }
+        }
+    };
 
     const onSubmit = async (data: any) => {
         setIsSubmitting(true);
@@ -108,7 +136,7 @@ const SurveyEvent: React.FC = () => {
                                 Previous
                             </button>
                             {step < STEPS ? (
-                                <button type="button" onClick={() => setStep(s => s + 1)} className="btn-gradient py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white">
+                                <button type="button" onClick={handleNext} className="btn-gradient py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white">
                                     Next
                                 </button>
                             ) : (

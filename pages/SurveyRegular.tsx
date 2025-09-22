@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { useAppContext } from '../context/AppContext';
@@ -8,21 +7,30 @@ import { SyncStatus, SurveyRegularResponse } from '../types';
 const STEPS = 4;
 const QUESTIONS_PER_STEP = 5;
 
-const FormInput = (props: any) => (
-    <input {...props} className="mt-1 block w-full rounded-md bg-white/5 border-white/20 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-2 px-3" />
-);
+const FormInput = ({ error, ...props }: any) => {
+    const baseClasses = 'mt-1 block w-full rounded-md bg-white/5 border shadow-sm py-2 px-3';
+    const errorClasses = 'border-red-500 focus:border-red-500 focus:ring-red-500';
+    const normalClasses = 'border-white/20 focus:border-cyan-500 focus:ring-cyan-500';
+    return <input {...props} className={`${baseClasses} ${error ? errorClasses : normalClasses}`} />;
+};
 
 const Step = ({ start }: { start: number }) => {
-    const { register } = useFormContext();
+    const { register, formState: { errors } } = useFormContext();
     const stepIndex = Math.ceil(start / QUESTIONS_PER_STEP);
     return (
         <div className="space-y-4 animate-fade-in">
             {[...Array(QUESTIONS_PER_STEP)].map((_, i) => {
                 const questionIndex = start + i;
+                const fieldName = `step${stepIndex}.q${questionIndex}`;
+                const fieldError = errors[`step${stepIndex}`]?.[`q${questionIndex}`];
                 return (
                     <div key={i}>
                         <label className="block text-sm font-medium text-gray-300">Question {questionIndex}</label>
-                        <FormInput {...register(`step${stepIndex}.q${questionIndex}`)} />
+                        <FormInput 
+                            error={!!fieldError} 
+                            {...register(fieldName, { required: 'This field is required.' })} 
+                        />
+                         {fieldError && <p className="text-red-400 text-xs mt-1">{fieldError.message as string}</p>}
                     </div>
                 );
             })}
@@ -33,7 +41,7 @@ const Step = ({ start }: { start: number }) => {
 
 const SurveyRegular: React.FC = () => {
     const [step, setStep] = useState(1);
-    const methods = useForm();
+    const methods = useForm({ mode: 'onBlur' });
     const { isOnline } = useAppContext();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -46,6 +54,15 @@ const SurveyRegular: React.FC = () => {
             return () => clearTimeout(timer);
         }
     }, [submitStatus]);
+    
+    const handleNext = async () => {
+        const questionStartIndex = 1 + (step - 1) * QUESTIONS_PER_STEP;
+        const fieldsToValidate = [...Array(QUESTIONS_PER_STEP)].map((_, i) => `step${step}.q${questionStartIndex + i}`);
+        const isValid = await methods.trigger(fieldsToValidate as any);
+        if (isValid) {
+            setStep(s => s + 1);
+        }
+    };
 
     const onSubmit = async (data: any) => {
         setIsSubmitting(true);
@@ -99,7 +116,7 @@ const SurveyRegular: React.FC = () => {
                                 Previous
                             </button>
                             {step < STEPS ? (
-                                <button type="button" onClick={() => setStep(s => s + 1)} className="btn-gradient py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white">
+                                <button type="button" onClick={handleNext} className="btn-gradient py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white">
                                     Next
                                 </button>
                             ) : (

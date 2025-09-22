@@ -4,12 +4,12 @@ import { useAppContext } from '../context/AppContext';
 const LoginModal: React.FC = () => {
   const { login } = useAppContext();
   const [email, setEmail] = useState('berthojoris@gmail.com');
-  const [password, setPassword] = useState('mavendra');
+  const [password, setPassword] = useState('malaquena');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'berthojoris@gmail.com' && password === 'mavendra') {
+    if (email === 'berthojoris@gmail.com' && password === 'malaquena') {
       setError('');
       login();
     } else {
@@ -50,7 +50,7 @@ const LoginModal: React.FC = () => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="mavendra"
+                  placeholder="malaquena"
                   className="mt-1 block w-full rounded-md bg-white/5 border-white/20 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-2 px-3 text-gray-200 leading-tight"
                   required
                 />

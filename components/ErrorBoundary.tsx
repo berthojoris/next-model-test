@@ -1,4 +1,4 @@
-import React, { Component, ReactNode } from 'react';
+import React, { Component, ReactNode, ErrorInfo } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -18,7 +18,10 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  // Fix: Correctly typed `errorInfo` with `ErrorInfo` (which was also added to the import above).
+  // The previous type `React.ErrorInfo` was incorrect with the module imports, causing a
+  // cascading type error which incorrectly reported that `this.props` did not exist.
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to an error reporting service or console
     console.error("Uncaught error:", error, errorInfo);
   }

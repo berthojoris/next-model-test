@@ -1,22 +1,29 @@
-
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAppContext } from '../context/AppContext';
 import { db } from '../services/db';
 import { Region, SyncStatus, Surveyor } from '../types';
 
-const FormInput = (props: any) => (
-    <input {...props} className="mt-1 block w-full rounded-md bg-white/5 border-white/20 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-2 px-3" />
-);
+const FormInput = ({ error, ...props }: any) => {
+    const baseClasses = 'mt-1 block w-full rounded-md bg-white/5 border shadow-sm py-2 px-3';
+    const errorClasses = 'border-red-500 focus:border-red-500 focus:ring-red-500';
+    const normalClasses = 'border-white/20 focus:border-cyan-500 focus:ring-cyan-500';
+    return <input {...props} className={`${baseClasses} ${error ? errorClasses : normalClasses}`} />;
+};
 
-const FormSelect = (props: any) => (
-     <select {...props} className="mt-1 block w-full rounded-md bg-gray-800/80 border-white/20 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 py-2 px-3">
-        {props.children}
-    </select>
-);
+const FormSelect = ({ error, ...props }: any) => {
+    const baseClasses = 'mt-1 block w-full rounded-md bg-gray-800/80 border shadow-sm py-2 px-3';
+    const errorClasses = 'border-red-500 focus:border-red-500 focus:ring-red-500';
+    const normalClasses = 'border-white/20 focus:border-cyan-500 focus:ring-cyan-500';
+    return (
+        <select {...props} className={`${baseClasses} ${error ? errorClasses : normalClasses}`}>
+            {props.children}
+        </select>
+    );
+};
 
 const RegisterSurveyor: React.FC = () => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<Omit<Surveyor, 'id' | 'createdAt' | 'status'>>();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<Omit<Surveyor, 'id' | 'createdAt' | 'status'>>({ mode: 'onBlur' });
     const { isOnline } = useAppContext();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -63,29 +70,29 @@ const RegisterSurveyor: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-300">Full Name</label>
-                            <FormInput {...register('fullName', { required: 'Full name is required' })} />
+                            <FormInput error={errors.fullName} {...register('fullName', { required: 'Full name is required' })} />
                             {errors.fullName && <p className="text-red-400 text-xs mt-1">{errors.fullName.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-300">Email</label>
-                            <FormInput type="email" {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' } })} />
+                            <FormInput type="email" error={errors.email} {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' } })} />
                             {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-300">Phone Number</label>
-                            <FormInput type="tel" {...register('phoneNumber', { required: 'Phone number is required' })} />
+                            <FormInput type="tel" error={errors.phoneNumber} {...register('phoneNumber', { required: 'Phone number is required' })} />
                             {errors.phoneNumber && <p className="text-red-400 text-xs mt-1">{errors.phoneNumber.message}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-300">Region</label>
-                            <FormSelect {...register('region', { required: 'Region is required' })}>
+                            <FormSelect error={errors.region} {...register('region', { required: 'Region is required' })}>
                                 {Object.values(Region).map(r => <option key={r} value={r} className="bg-gray-800">{r}</option>)}
                             </FormSelect>
                             {errors.region && <p className="text-red-400 text-xs mt-1">{errors.region.message}</p>}
                         </div>
                          <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-300">ID Number</label>
-                            <FormInput {...register('idNumber', { required: 'ID number is required' })} />
+                            <FormInput error={errors.idNumber} {...register('idNumber', { required: 'ID number is required' })} />
                             {errors.idNumber && <p className="text-red-400 text-xs mt-1">{errors.idNumber.message}</p>}
                         </div>
                     </div>
